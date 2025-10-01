@@ -1,135 +1,66 @@
 package com.example.myapplication
 
-import android.icu.util.Calendar
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CalendarView
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.SeekBar
-import android.widget.Spinner
-import android.widget.TextView
-import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-import androidx.core.content.res.ResourcesCompat
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.widget.ViewPager2
+import androidx.core.graphics.toColorInt
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+    private lateinit var viewPager: ViewPager2
+    private lateinit var tab1: Button
+    private lateinit var tab2: Button
+    private lateinit var tab3: Button
+    private lateinit var tab4: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.main)
 
-        val name: EditText = findViewById(R.id.name)
-        val maleButton: RadioButton = findViewById(R.id.male)
-        val femaleButton: RadioButton = findViewById(R.id.female)
-        val course: Spinner = findViewById(R.id.course)
-        val difficulty: SeekBar = findViewById(R.id.difficulty)
-        val date: CalendarView = findViewById(R.id.date)
-        val signUpButton: Button = findViewById(R.id.sign_up_button)
-        val personInfo: TextView = findViewById(R.id.person_info)
-        val image: ImageView = findViewById(R.id.image)
+        viewPager = findViewById(R.id.pager)
+        tab1 = findViewById(R.id.tab1)
+        tab2 = findViewById(R.id.tab2)
+        tab3 = findViewById(R.id.tab3)
+        tab4 = findViewById(R.id.tab4)
 
-        var gender = ""
-        maleButton.setOnClickListener { gender = maleButton.getText().toString() }
-        femaleButton.setOnClickListener { gender = femaleButton.getText().toString() }
+        val adapter = ViewPagerAdapter(this)
+        viewPager.adapter = adapter
 
-        val courses = arrayOf("1 курс", "2 курс", "3 курс", "4 курс")
-        val adapter: ArrayAdapter<String> = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        course.setAdapter(adapter);
-
-        difficulty.setMax(2)
-
-        date.setOnDateChangeListener { calView, year, month, dayOfMonth ->
-            val calendar: Calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            calView.setDate(calendar.timeInMillis, true, true)
+        tab1.setOnClickListener {
+            viewPager.currentItem = 0
+            updateTabStyles(0)
+        }
+        tab2.setOnClickListener {
+            viewPager.currentItem = 1
+            updateTabStyles(1)
+        }
+        tab3.setOnClickListener {
+            viewPager.currentItem = 2
+            updateTabStyles(2)
+        }
+        tab4.setOnClickListener {
+            viewPager.currentItem = 3
+            updateTabStyles(3)
         }
 
-        signUpButton.setOnClickListener {
-            val personName = name.text.toString()
-            val personGender = gender
-            val personCourse = course.selectedItem.toString()
-            val personDiff = difficulty.progress.toString()
-            val personDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                .format(Date(date.date)).toString()
-            val personZodiac = getSignByDate(personDate.split(".")[0].toInt() ,
-                personDate.split(".")[1].toInt())
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                updateTabStyles(position)
+            }
+        })
 
-            val person = Person(personName, personGender, personCourse, personDiff, personDate, personZodiac)
-
-            personInfo.text = person.toString()
-            image.setImageDrawable(ResourcesCompat.getDrawable(resources, getImageBySign(personZodiac), null))
-        }
+        updateTabStyles(0)
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Box(modifier = Modifier.fillMaxSize(), Alignment.Center)
-    {
-        Text(text = "Hello, $name!", modifier = modifier, textAlign = TextAlign.Center,
-            color = Color.Blue, fontSize = 50.sp)
-    }
-}
+    private fun updateTabStyles(selectedPosition: Int) {
+        val selectedColor = Color.WHITE
+        val unselectedColor = "#e0e0e0".toColorInt()
 
-private fun getSignByDate(day: Int, month: Int): String {
-    return when (month) {
-        1 -> if (day <= 20) "Козерог" else "Водолей"
-        2 -> if (day <= 19) "Водолей" else "Рыбы"
-        3 -> if (day <= 20) "Рыбы" else "Овен"
-        4 -> if (day <= 20) "Овен" else "Телец"
-        5 -> if (day <= 21) "Телец" else "Близнецы"
-        6 -> if (day <= 21) "Близнецы" else "Рак"
-        7 -> if (day <= 22) "Рак" else "Лев"
-        8 -> if (day <= 23) "Лев" else "Дева"
-        9 -> if (day <= 23) "Дева" else "Весы"
-        10 -> if (day <= 23) "Весы" else "Скорпион"
-        11 -> if (day <= 22) "Скорпион" else "Стрелец"
-        12 -> if (day <= 21) "Стрелец" else "Козерог"
-        else -> "Неизвестно"
-    }
-}
-
-private fun getImageBySign(sign: String): Int {
-    return when (sign) {
-        "Козерог" -> R.drawable.capricorn
-        "Водолей" -> R.drawable.aquarius
-        "Рыбы" -> R.drawable.pisces
-        "Овен" -> R.drawable.aries
-        "Телец" -> R.drawable.taurus
-        "Близнецы" -> R.drawable.gemini
-        "Рак" -> R.drawable.cancer
-        "Лев" -> R.drawable.leo
-        "Дева" -> R.drawable.virgo
-        "Весы" -> R.drawable.libra
-        "Скорпион" -> R.drawable.scorpio
-        "Стрелец" -> R.drawable.sagittarius
-        else -> R.drawable.ic_launcher_foreground
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("World")
+        tab1.setBackgroundColor(if (selectedPosition == 0) selectedColor else unselectedColor)
+        tab2.setBackgroundColor(if (selectedPosition == 1) selectedColor else unselectedColor)
+        tab3.setBackgroundColor(if (selectedPosition == 2) selectedColor else unselectedColor)
+        tab4.setBackgroundColor(if (selectedPosition == 3) selectedColor else unselectedColor)
     }
 }

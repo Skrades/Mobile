@@ -1,99 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    >
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Введите имя:"
-        android:textSize="20sp"
-        />
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="50dp" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Пол:"
-        android:textSize="20sp"
-        />
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="25dp" >
+    android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/male"
-            android:layout_width="150dp"
-            android:layout_height="match_parent"
-            android:text="Муж."
-            android:textSize="30sp"/>
-
-        <RadioButton
-            android:id="@+id/female"
-            android:layout_width="150dp"
-            android:layout_height="match_parent"
-            android:text="Жен."
-            android:textSize="30sp"/>
-
-    </RadioGroup>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Курс:"
-        android:textSize="20sp"
-        />
-    <Spinner
-        android:id="@+id/course"
-        android:layout_height="50dp"
-        android:layout_width="match_parent" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Сложность:"
-        android:textSize="20sp"
-        />
-    <SeekBar
-        android:id="@+id/difficulty"
-        android:layout_height="50dp"
-        android:layout_width="match_parent" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Дата рождения:"
-        android:textSize="20sp"
-        />
-    <CalendarView
-        android:id="@+id/date"
-        android:layout_height="300dp"
-        android:layout_width="match_parent" />
-
-    <Button
-        android:id="@+id/sign_up_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Записать" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textAlignment="center">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#f0f0f0"
+        android:layout_marginTop="20dp">
 
-        <TextView
-            android:id="@+id/person_info"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:textSize="20sp" />
+        <Button
+            android:id="@+id/tab1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Регистрация"
+            android:background="#ffffff" />
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/tab2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Правила"
+            android:background="#e0e0e0" />
+
+        <Button
+            android:id="@+id/tab3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Настройки"
+            android:background="#e0e0e0" />
+
+        <Button
+            android:id="@+id/tab4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Авторы"
+            android:background="#e0e0e0" />
+
     </LinearLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Введите имя:"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Пол:"
+        android:textSize="16sp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_marginHorizontal="25dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/male"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:text="Муж."
+            android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/female"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:text="Жен."
+            android:textSize="20sp" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Курс:"
+        android:textSize="16sp" />
+
+    <Spinner
+        android:id="@+id/course"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сложность:"
+        android:textSize="16sp" />
+
+    <SeekBar
+        android:id="@+id/difficulty"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Дата рождения:"
+        android:textSize="16sp" />
+
+    <CalendarView
+        android:id="@+id/date"
+        style="@android:style/Widget.Material.Light.CalendarView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:pointerIcon="vertical_text" />
+
+    <Button
+        android:id="@+id/sign_up_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:background="#2196F3"
+        android:textColor="#FFFFFF"
+        android:text="Записать" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAlignment="center">
+
+        <TextView
+            android:id="@+id/person_info"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</LinearLayout>
