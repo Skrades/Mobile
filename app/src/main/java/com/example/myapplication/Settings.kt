@@ -12,6 +12,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 class Settings : Fragment() {
+
+    private lateinit var speedSeekBar : SeekBar
+    private lateinit var cockroachesSeekBar : SeekBar
+    private lateinit var bonusIntervalSeekBar : SeekBar
+    private lateinit var roundDurationSeekBar : SeekBar
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.settings, container, false)
     }
@@ -19,16 +25,17 @@ class Settings : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupSettings(view)
+        loadSettings();
     }
 
     private fun setupSettings(view: View) {
-        val speedSeekBar = view.findViewById<SeekBar>(R.id.speedSeekBar)
+        speedSeekBar = view.findViewById<SeekBar>(R.id.speedSeekBar)
         val speedValue = view.findViewById<TextView>(R.id.speedValue)
-        val cockroachesSeekBar = view.findViewById<SeekBar>(R.id.cockroachesSeekBar)
+        cockroachesSeekBar = view.findViewById<SeekBar>(R.id.cockroachesSeekBar)
         val cockroachesValue = view.findViewById<TextView>(R.id.cockroachesValue)
-        val bonusIntervalSeekBar = view.findViewById<SeekBar>(R.id.bonusIntervalSeekBar)
+        bonusIntervalSeekBar = view.findViewById<SeekBar>(R.id.bonusIntervalSeekBar)
         val bonusIntervalValue = view.findViewById<TextView>(R.id.bonusIntervalValue)
-        val roundDurationSeekBar = view.findViewById<SeekBar>(R.id.roundDurationSeekBar)
+        roundDurationSeekBar = view.findViewById<SeekBar>(R.id.roundDurationSeekBar)
         val roundDurationValue = view.findViewById<TextView>(R.id.roundDurationValue)
         val saveButton = view.findViewById<Button>(R.id.saveSettingsButton)
 
@@ -77,5 +84,20 @@ class Settings : Fragment() {
         }
 
         Toast.makeText(requireContext(), "Настройки сохранены!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun loadSettings() {
+        val sharedPref = requireActivity().getSharedPreferences("game_settings", Context.MODE_PRIVATE)
+
+        val speed = sharedPref.getInt("game_speed", 2)
+        val cockroaches = sharedPref.getInt("max_cockroaches", 8)
+        val bonusInterval = sharedPref.getInt("bonus_interval", 2)
+        val roundDuration = sharedPref.getInt("round_duration", 1)
+
+        speedSeekBar.progress = speed
+        cockroachesSeekBar.progress = cockroaches - 5
+        bonusIntervalSeekBar.progress = bonusInterval
+        roundDurationSeekBar.progress = roundDuration
+
     }
 }

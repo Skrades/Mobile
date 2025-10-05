@@ -23,6 +23,7 @@ class Authors : Fragment() {
 
         val authors = listOf(
             Author("Чечиков Илья", "Главный разработчик", R.drawable.ic_launcher_foreground),
+            //Author("123", "Разработчик", R.drawable.ic_launcher_background),
         )
 
         val adapter = AuthorAdapter(requireContext(), authors)

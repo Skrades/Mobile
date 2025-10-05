@@ -1,8 +1,10 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import androidx.core.graphics.toColorInt
@@ -15,6 +17,8 @@ class MainActivity : FragmentActivity() {
     private lateinit var tab3: Button
     private lateinit var tab4: Button
 
+    private lateinit var start: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
@@ -24,6 +28,7 @@ class MainActivity : FragmentActivity() {
         tab2 = findViewById(R.id.tab2)
         tab3 = findViewById(R.id.tab3)
         tab4 = findViewById(R.id.tab4)
+        start = findViewById(R.id.startGame)
 
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
@@ -43,6 +48,15 @@ class MainActivity : FragmentActivity() {
         tab4.setOnClickListener {
             viewPager.currentItem = 3
             updateTabStyles(3)
+        }
+
+        start.setOnClickListener {
+            try {
+                startActivity(Intent(this@MainActivity, Game::class.java))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Ошибка запуска игры: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

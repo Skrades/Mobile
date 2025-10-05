@@ -83,7 +83,7 @@ class Registration : Fragment() {
             val personZodiac = getSignByDate(personDate.split(".")[0].toInt() ,
                 personDate.split(".")[1].toInt())
 
-            val person = Person(personName, personGender, personCourse, personDiff, personDate, personZodiac)
+            val person = Player(personName, personGender, personCourse, personDiff, personDate, personZodiac)
 
             personInfo.text = person.toString()
             image.setImageDrawable(ResourcesCompat.getDrawable(resources, getImageBySign(personZodiac), null))
