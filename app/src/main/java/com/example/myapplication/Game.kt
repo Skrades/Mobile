@@ -21,10 +21,17 @@ import kotlin.random.Random
 import android.graphics.Color
 import android.view.MotionEvent
 import android.view.animation.LinearInterpolator
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import kotlin.math.cos
 import kotlin.math.sin
 import androidx.core.view.contains
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Math.pow
 import kotlin.math.atan2
+import kotlin.math.pow
 
 class Game : AppCompatActivity() {
     private lateinit var gameLayout: FrameLayout
@@ -32,7 +39,10 @@ class Game : AppCompatActivity() {
     private lateinit var timerTextView: TextView
     private lateinit var menuButton: Button
 
+    private var id : Long = 0
+    private var difficulty : String? = "0"
     private var score = 0
+    private var modificator = 0
     private var gameTime = 60000L
     private var isGameRunning = false
     private var isPaused = false
@@ -42,17 +52,22 @@ class Game : AppCompatActivity() {
         Insect("Жук", R.drawable.bug, 10, 1.0f),
         Insect("Таракан", R.drawable.cockroach, 20, 2.0f),
         Insect("Муха", R.drawable.fly, 100, 4.0f),
-        Insect("Паук", R.drawable.spider, -10, 1.0f),
+        Insect("Паук", R.drawable.spider, -30, 1.0f),
         Insect("Божья коровка", R.drawable.ladybug, 5, 0.5f),
     )
 
     private lateinit var countDownTimer: CountDownTimer
     private val handler = Handler(Looper.getMainLooper())
 
+    val db : PlayerDatabase? = App.getInstance()?.getDataBase()
+    val playerDao = db?.playerDao()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.game)
 
+        id = intent.getLongExtra("PLAYER_ID", 0)
+        difficulty = intent.getStringExtra("PLAYER_DIFFICULTY")
         initializeViews()
         setupGame()
         startGame()
@@ -114,11 +129,32 @@ class Game : AppCompatActivity() {
             }
 
             override fun onFinish() {
+                saveGameResults()
                 isGameRunning = false
-                startActivity(Intent(this@Game, MainActivity::class.java))
+                AlertDialog.Builder(this@Game)
+                    .setTitle("Игра завершена!")
+                    .setMessage("Ваш счет: $score")
+                    .setPositiveButton("OK") { dialog, which ->
+                        startActivity(Intent(this@Game, MainActivity::class.java))
+                    }
+                    .setCancelable(false)
+                    .show()
             }
         }.start()
         startInsectSpawning()
+    }
+
+    private fun saveGameResults() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val player = playerDao?.getPlayerById(id)
+
+            player?.let {
+                val updatedPlayer = it.copy(
+                    bestScore = maxOf(it.bestScore, score),
+                )
+                playerDao.update(updatedPlayer)
+            }
+        }
     }
 
     private fun spawnInsect() {
@@ -191,19 +227,24 @@ class Game : AppCompatActivity() {
         gameLayout.removeView(insectView)
         insects.remove(insectView)
 
-        score += insect.points
+        modificator = if(insect.type == "Паук") {
+            insect.points * difficulty!!.toInt()
+        } else {
+            insect.points * (4 - (difficulty!!.toInt() + 1))
+        }
+        score += modificator
         updateScore()
 
-        showPointsAnimation(insectView.x, insectView.y, insect.points)
+        showPointsAnimation(insectView.x, insectView.y, modificator)
     }
 
     private fun onEmptyClick(x: Float, y: Float) {
         if (isPaused) return
-
-        score -= 3
+        modificator = (difficulty!!.toInt() * 3)
+        score -= modificator
         updateScore()
 
-        showPointsAnimation(x, y, -3)
+        showPointsAnimation(x, y, -modificator)
     }
 
     private fun showPointsAnimation(x: Float, y: Float, points: Int) {
@@ -237,8 +278,7 @@ class Game : AppCompatActivity() {
             override fun run() {
                 if (isGameRunning && !isPaused) {
                     spawnInsect()
-                    val delay = Random.nextLong(500, 2000)
-                    handler.postDelayed(this, delay)
+                    handler.postDelayed(this, 400 * (difficulty!!.toLong() + 1))
                 }
             }
         }, 1000)

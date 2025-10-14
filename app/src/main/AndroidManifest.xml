@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -14,7 +15,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +26,11 @@
         <activity
             android:name=".Game"
             android:label="Игра Жуки"
+            android:exported="false"
+            android:theme="@style/Theme.Game"/>
+        <activity
+            android:name=".SelectPlayer"
+            android:label="Выбор игрока"
             android:exported="false"
             android:theme="@style/Theme.Game"/>
     </application>

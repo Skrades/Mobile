@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Selection
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
@@ -16,7 +17,6 @@ class MainActivity : FragmentActivity() {
     private lateinit var tab2: Button
     private lateinit var tab3: Button
     private lateinit var tab4: Button
-
     private lateinit var start: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,12 +51,7 @@ class MainActivity : FragmentActivity() {
         }
 
         start.setOnClickListener {
-            try {
-                startActivity(Intent(this@MainActivity, Game::class.java))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(this, "Ошибка запуска игры: ${e.message}", Toast.LENGTH_LONG).show()
-            }
+            startActivity(Intent(this@MainActivity, SelectPlayer::class.java))
         }
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

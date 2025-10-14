@@ -52,7 +52,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="• На экране появляются различные насекомые\n• Каждое насекомое перемещается по своей траектории\n• Нажимайте на насекомых, чтобы уничтожить их"
+            android:text="• На экране появляются различные насекомые\n• Каждое насекомое перемещается по случайной траектории\n• Нажимайте на насекомых, чтобы уничтожить их\n• При выходе насекомого за пределы экрана, оно пропадает"
             android:textSize="16sp"
             android:textColor="#000000"
             android:layout_marginBottom="20dp" />
@@ -69,7 +69,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="• Легкий: Медленная скорость (0.5x)\n• Средний: Нормальная скорость (1x)\n• Сложный: Высокая скорость (2x)"
+            android:text="• Легкий: Множитель очков 3x, высокая скорость появления жуков, отсутствие штрафов\n• Средний: Множитель очков 2x, средняя скорость появления жуков\n• Сложный: Множитель очков 1x, низкая скорость появления жуков"
             android:textSize="16sp"
             android:textColor="#000000"
             android:layout_marginBottom="20dp" />
@@ -86,7 +86,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="• Золотой жук: +50 очков\n• Молниеносный жук: +25 очков\n• Ядовитый жук: -10 очков\n• Промах: -3 очка"
+            android:text="• Жук: +10 очков\n• Таракан: +20 очков\n• Муха: +100 очков\n• Божья коровка: +5 очков\n• Паук: -20 очков\n• Промах: -3 очка"
             android:textSize="16sp"
             android:textColor="#000000"
             android:layout_marginBottom="20dp" />

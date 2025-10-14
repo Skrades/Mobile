@@ -13,8 +13,12 @@ import android.widget.RadioButton
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,6 +34,8 @@ class Registration : Fragment() {
     private lateinit var signUpButton: Button
     private lateinit var personInfo: TextView
     private lateinit var image: ImageView
+    val db : PlayerDatabase? = App.getInstance()?.getDataBase()
+    val playerDao = db?.playerDao()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -82,11 +88,20 @@ class Registration : Fragment() {
                 .format(Date(date.date)).toString()
             val personZodiac = getSignByDate(personDate.split(".")[0].toInt() ,
                 personDate.split(".")[1].toInt())
-
-            val person = Player(personName, personGender, personCourse, personDiff, personDate, personZodiac)
-
-            personInfo.text = person.toString()
+            val player = Player(
+                name = personName,
+                gender = personGender,
+                course = personCourse,
+                difficulty = personDiff,
+                date = personDate,  // исправлено с date на birthDate
+                zodiac = personZodiac
+            )
+            personInfo.text = player.toString()
             image.setImageDrawable(ResourcesCompat.getDrawable(resources, getImageBySign(personZodiac), null))
+            lifecycleScope.launch(Dispatchers.IO) {
+                playerDao?.insert(player)
+            }
+            println("Игрок сохранен")
         }
     }
     private fun getSignByDate(day: Int, month: Int): String {
