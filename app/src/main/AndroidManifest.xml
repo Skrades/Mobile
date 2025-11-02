@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -28,11 +31,24 @@
             android:label="Игра Жуки"
             android:exported="false"
             android:theme="@style/Theme.Game"/>
+
         <activity
             android:name=".SelectPlayer"
             android:label="Выбор игрока"
             android:exported="false"
             android:theme="@style/Theme.Game"/>
+
+        <receiver
+            android:name=".GoldRate"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/gold_rate_info" />
+        </receiver>
     </application>
 
 </manifest>

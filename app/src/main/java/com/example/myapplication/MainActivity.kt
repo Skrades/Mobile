@@ -3,9 +3,7 @@ package com.example.myapplication
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.text.Selection
 import android.widget.Button
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import androidx.core.graphics.toColorInt

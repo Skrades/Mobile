@@ -13,7 +13,6 @@ import android.widget.RadioButton
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -93,10 +92,10 @@ class Registration : Fragment() {
                 gender = personGender,
                 course = personCourse,
                 difficulty = personDiff,
-                date = personDate,  // исправлено с date на birthDate
+                date = personDate,
                 zodiac = personZodiac
             )
-            personInfo.text = player.toString()
+            personInfo.text = player.name + "\n" + player.gender + "\n" + player.course + " \n" + player.date
             image.setImageDrawable(ResourcesCompat.getDrawable(resources, getImageBySign(personZodiac), null))
             lifecycleScope.launch(Dispatchers.IO) {
                 playerDao?.insert(player)

@@ -10,18 +10,22 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.random.Random
 import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.view.MotionEvent
+import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import kotlin.math.cos
 import kotlin.math.sin
@@ -29,9 +33,7 @@ import androidx.core.view.contains
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Math.pow
 import kotlin.math.atan2
-import kotlin.math.pow
 
 class Game : AppCompatActivity() {
     private lateinit var gameLayout: FrameLayout
@@ -42,11 +44,15 @@ class Game : AppCompatActivity() {
     private var id : Long = 0
     private var difficulty : String? = "0"
     private var score = 0
+
+    private var currentGoldRate: Double = 0.0
     private var modificator = 0
     private var gameTime = 60000L
     private var isGameRunning = false
     private var isPaused = false
-
+    private var bonusActive = false
+    private var lastSpawnTime = 0L;
+    private var lastSpawn = 0L;
     private val insects = mutableListOf<ImageView>()
     private val insectTypes = listOf(
         Insect("Жук", R.drawable.bug, 10, 1.0f),
@@ -54,6 +60,7 @@ class Game : AppCompatActivity() {
         Insect("Муха", R.drawable.fly, 100, 4.0f),
         Insect("Паук", R.drawable.spider, -30, 1.0f),
         Insect("Божья коровка", R.drawable.ladybug, 5, 0.5f),
+        Insect("Золотой жук", R.drawable.gold, currentGoldRate.toInt(), 0.5f)
     )
 
     private lateinit var countDownTimer: CountDownTimer
@@ -62,12 +69,49 @@ class Game : AppCompatActivity() {
     val db : PlayerDatabase? = App.getInstance()?.getDataBase()
     val playerDao = db?.playerDao()
 
+    private var sensorManager: SensorManager? = null
+    private var accelerometer: Sensor? = null
+    private var sound: SoundPool? = null
+    private var soundId: Int = 0
+    private var accelerationX = 0f
+    private var accelerationY = 0f
+    private val sensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent?) {
+            if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER && bonusActive) {
+                accelerationX = event.values[0]
+                accelerationY = event.values[1]
+                applyBonusToInsects()
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.game)
 
         id = intent.getLongExtra("PLAYER_ID", 0)
         difficulty = intent.getStringExtra("PLAYER_DIFFICULTY")
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        sound = SoundPool.Builder()
+            .setMaxStreams(5)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundId = sound?.load(this, R.raw.sound, 1) ?: 0
+
+        lifecycleScope.launch {
+            currentGoldRate = RetrofitClient.getGoldRate()
+            insectTypes[5].points = currentGoldRate.toInt() * 3
+        }
+
         initializeViews()
         setupGame()
         startGame()
@@ -82,6 +126,7 @@ class Game : AppCompatActivity() {
 
         menuButton.setOnClickListener {
             isGameRunning = false
+            bonusActive = false
             countDownTimer.cancel()
             startActivity(Intent(this@Game, MainActivity::class.java))
         }
@@ -104,7 +149,7 @@ class Game : AppCompatActivity() {
         val roundDuration = sharedPref.getInt("round_duration", 1)
 
         gameTime = when (roundDuration) {
-            0 -> 60000L
+            0 -> 30000L
             1 -> 120000L
             2 -> 180000L
             3 -> 240000L
@@ -125,12 +170,23 @@ class Game : AppCompatActivity() {
             override fun onTick(millisUntilFinished: Long) {
                 if (!isPaused && isGameRunning) {
                     updateTimer(millisUntilFinished)
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastSpawnTime >= 15000 && !bonusActive) {
+                        spawnBonus()
+                        lastSpawnTime = currentTime
+                    }
+                    if(currentTime - lastSpawn >= 20000)
+                    {
+                        spawnGold()
+                        lastSpawn = currentTime
+                    }
                 }
             }
 
             override fun onFinish() {
                 saveGameResults()
                 isGameRunning = false
+                bonusActive = false
                 AlertDialog.Builder(this@Game)
                     .setTitle("Игра завершена!")
                     .setMessage("Ваш счет: $score")
@@ -157,6 +213,84 @@ class Game : AppCompatActivity() {
         }
     }
 
+    private fun activateBonus() {
+        bonusActive = true
+
+        sound?.play(0, 1.0f, 1.0f, 1, 0, 1.0f)
+
+        sensorManager?.registerListener(
+            sensorListener,
+            accelerometer,
+            SensorManager.SENSOR_DELAY_GAME
+        )
+
+        gameLayout.setBackgroundColor(Color.argb(30, 255, 0, 0))
+
+        val soundHandler = Handler(Looper.getMainLooper())
+        val soundRunnable = object : Runnable {
+            override fun run() {
+                if (bonusActive && isGameRunning) {
+                    sound?.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f)
+                    soundHandler.postDelayed(this, 500)
+                }
+            }
+        }
+        soundHandler.post(soundRunnable)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            bonusActive = false
+            sensorManager?.unregisterListener(sensorListener)
+
+            gameLayout.setBackgroundColor(Color.TRANSPARENT)
+
+            accelerationX = 0f
+            accelerationY = 0f
+        }, 5000L)
+    }
+
+    private fun spawnBonus() {
+
+        val bonusView = ImageView(this).apply {
+            setImageResource(R.drawable.bonus)
+            layoutParams = ViewGroup.LayoutParams(100, 100)
+
+            setOnClickListener {
+                activateBonus()
+                (it.parent as? ViewGroup)?.removeView(it)
+            }
+        }
+
+        bonusView.x = Random.nextInt(bonusView.width + 100, gameLayout.width - 100).toFloat()
+        bonusView.y = Random.nextInt(bonusView.height + 100, gameLayout.height - 100).toFloat()
+
+        gameLayout.addView(bonusView)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (bonusView.parent != null && !bonusActive) {
+                (bonusView.parent as? ViewGroup)?.removeView(bonusView)
+            }
+        }, 3000)
+    }
+
+    private fun spawnGold() {
+        if (isPaused) return
+
+        val insect = insectTypes[5]
+        val insectView = ImageView(this).apply {
+            setImageResource(insect.drawableRes)
+            layoutParams = FrameLayout.LayoutParams(100, 100)
+            setOnClickListener { onInsectClick(this, insect) }
+        }
+
+        insectView.x = Random.nextInt(insectView.width + 100, gameLayout.width - 100).toFloat()
+        insectView.y = Random.nextInt(insectView.height + 100, gameLayout.height - 100).toFloat()
+
+        gameLayout.addView(insectView)
+        insects.add(insectView)
+
+        startInsectMovement(insectView, insect.speedMultiplier)
+    }
+
     private fun spawnInsect() {
         if (insects.size >= getMaxInsects() || isPaused) return
 
@@ -173,10 +307,10 @@ class Game : AppCompatActivity() {
         gameLayout.addView(insectView)
         insects.add(insectView)
 
-        startInsectMovement(insectView, insect)
+        startInsectMovement(insectView, insect.speedMultiplier)
     }
 
-    private fun startInsectMovement(insectView: ImageView, insect: Insect) {
+    private fun startInsectMovement(insectView: ImageView, multiplier: Float) {
         val speed = getGameSpeed()
         val startX = insectView.x
         val startY = insectView.y
@@ -187,11 +321,14 @@ class Game : AppCompatActivity() {
         val targetY = startY + sin(angle) * distance
 
         val animator = ValueAnimator.ofFloat(0f, 1f)
-        animator.duration = (300 * (5-speed) / insect.speedMultiplier).toLong()
+        animator.duration = (300 * (5-speed) / multiplier).toLong()
         animator.interpolator = LinearInterpolator()
 
         animator.addUpdateListener { animation ->
             if (!isPaused && isGameRunning && gameLayout.contains(insectView)) {
+                if (bonusActive) {
+                    return@addUpdateListener
+                }
                 val fraction = animation.animatedValue as Float
                 insectView.x = startX + (targetX - startX) * fraction
                 insectView.y = startY + (targetY - startY) * fraction
@@ -213,12 +350,47 @@ class Game : AppCompatActivity() {
         animator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 if (!isPaused && isGameRunning && gameLayout.contains(insectView)) {
-                    startInsectMovement(insectView, insect)
+                    startInsectMovement(insectView, multiplier)
                 }
             }
         })
 
         animator.start()
+    }
+
+    private fun applyBonusToInsects() {
+        insects.forEach { insectView ->
+            if (gameLayout.contains(insectView)) {
+                val startX = insectView.x
+                val startY = insectView.y
+                val targetX = insectView.x - accelerationX * 20
+                val targetY = insectView.y + accelerationY * 20
+
+                val finalTargetX = targetX.coerceIn(0f, (gameLayout.width - insectView.width).toFloat())
+                val finalTargetY = targetY.coerceIn(0f, (gameLayout.height - insectView.height).toFloat())
+
+                val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                    duration = 50
+                    interpolator = LinearInterpolator()
+
+                    addUpdateListener { animation ->
+                        if (bonusActive && gameLayout.contains(insectView)) {
+                            val fraction = animation.animatedValue as Float
+
+                            insectView.x = startX + (finalTargetX - startX) * fraction
+                            insectView.y = startY + (finalTargetY - startY) * fraction
+
+                            val angle = Math.toDegrees(atan2(
+                                (finalTargetY - startY).toDouble(),
+                                (finalTargetX - startX).toDouble()
+                            )).toFloat()
+                            insectView.rotation = angle
+                        }
+                    }
+                }
+                animator.start()
+            }
+        }
     }
 
     private fun onInsectClick(insectView: ImageView, insect: Insect) {
@@ -336,7 +508,7 @@ class Game : AppCompatActivity() {
     data class Insect(
         val type: String,
         val drawableRes: Int,
-        val points: Int,
+        var points: Int,
         val speedMultiplier: Float
     )
 }

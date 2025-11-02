@@ -1,47 +1,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:orientation="horizontal"
         android:background="#f0f0f0"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="20dp"
+        android:padding="2dp">
 
         <Button
             android:id="@+id/tab1"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Регистрация"
-            android:background="#ffffff" />
+            android:background="#ffffff"
+            android:layout_margin="1dp"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/tab2"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Правила"
-            android:background="#e0e0e0" />
+            android:background="#e0e0e0"
+            android:layout_margin="1dp"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/tab3"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Настройки"
-            android:background="#e0e0e0" />
+            android:background="#e0e0e0"
+            android:layout_margin="1dp"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/tab4"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Авторы"
-            android:background="#e0e0e0" />
+            android:background="#e0e0e0"
+            android:layout_margin="1dp"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
@@ -56,6 +64,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Начать игру"
-        android:layout_marginBottom="20dp"/>
+        android:layout_margin="20dp"/>
 
 </LinearLayout>
